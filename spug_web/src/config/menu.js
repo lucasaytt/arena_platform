@@ -13,8 +13,8 @@ let menu = {
                 {key: '/account/role', permission: 'account_role_view', desc: '角色权限'}
             ]
         }, {
-            key: '2', desc: '主机管理', icon: 'fa fa-server', permission: 'assets_host_view|assets_host_exec_view', subs: [
-                {key: '/assets/host', permission: 'assets_host_view', desc: '主机列表'},
+            key: '2', desc: 'worker管理', icon: 'fa fa-server', permission: 'assets_host_view|assets_host_exec_view', subs: [
+                {key: '/assets/host', permission: 'assets_host_view', desc: 'worker列表'},
                 {key: '/assets/host_exec', permission: 'assets_host_exec_view', desc: '批量执行'}
             ]
         },
@@ -32,19 +32,13 @@ let menu = {
             key: '5', desc: '任务管理', icon: 'fa fa-calendar', permission: 'job_task_view', subs: [
                 {key: '/schedule/job', permission: 'job_task_view', desc: '任务列表'}
             ]
-        }, {
-            key: '6', desc: '监控管理', icon: 'fa fa-tachometer', subs: [
-                {key: 'host_monitor', desc: '主机监控'},
-                {key: 'ser_monitor', desc: '服务监控'},
-                {key: 'site_monitor', desc: '站点监控'},
-            ]
         },
-        {
-            key: '7', desc: '告警管理', icon: 'fa fa-bell-o', subs: [
-                {key: 'alarm_role', desc: '报警规则'},
-                {key: 'alarm_contact', desc: '报警联系人'},
-            ]
-        },
+        // {
+        //     key: '7', desc: '告警管理', icon: 'fa fa-bell-o', subs: [
+        //         {key: 'alarm_role', desc: '报警规则'},
+        //         {key: 'alarm_contact', desc: '报警联系人'},
+        //     ]
+        // },
         {
             key: '8', desc: '系统管理', icon: 'el-icon-setting',  permission: 'system_notify_view',  subs: [
                 {key: '/system/notify', permission: 'system_notify_view', desc: '通知设置'},
