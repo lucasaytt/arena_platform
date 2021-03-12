@@ -12,7 +12,7 @@ class Job(db.Model, ModelMixin):
     desc = db.Column(db.String(255))
     group = db.Column(db.String(50))
     command_user = db.Column(db.String(50))
-    command = db.Column(db.String(255))
+    command = db.Column(db.String(10000))
     targets = db.Column(db.String(255))
     trigger = db.Column(db.String(50))
     trigger_args = db.Column(db.String(255))
