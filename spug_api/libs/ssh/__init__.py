@@ -74,7 +74,7 @@ def ssh_ping(hostname, port):
         ssh_client.connect(
             hostname,
             port=port,
-            username='root',
+            username='hadoop',
             pkey=RSAKey.from_private_key(StringIO(Setting.ssh_private_key)))
     except AuthenticationException:
         return False
