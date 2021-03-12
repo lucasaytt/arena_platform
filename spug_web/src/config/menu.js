@@ -17,14 +17,11 @@ let menu = {
                 {key: '/assets/host', permission: 'assets_host_view', desc: '主机列表'},
                 {key: '/assets/host_exec', permission: 'assets_host_exec_view', desc: '批量执行'}
             ]
-        }, {
-            key: '3', desc: '应用发布', icon: 'fa fa-flag-o', permission: 'publish_app_view|publish_image_view', subs: [
-                {key: '/publish/app', permission: 'publish_app_view', desc: '应用列表'},
-                {key: '/publish/field', permission: 'publish_field_view', desc: '字段管理'},
-                {key: '/publish/menu', permission: 'publish_menu_view', desc: '菜单管理'},
-                {key: '/publish/image', permission: 'publish_image_view', desc: '镜像管理'}
-            ]
-        }, {
+        },
+        {
+            key: '/publish/image', desc: '镜像管理', icon: 'fa fa-flag-o', permission: 'publish_app_view|publish_image_view',
+        },
+        {
             key: '4', desc: '配置管理', icon: 'fa fa-cogs', permission: 'config_environment_view|config_service_view|config_app_view', subs: [
                 {key: '/configuration/environment', permission: 'config_environment_view', desc: '环境管理'},
                 {key: '/configuration/service', permission: 'config_service_view', desc: '服务配置'},
