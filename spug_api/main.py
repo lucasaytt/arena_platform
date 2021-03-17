@@ -11,7 +11,7 @@ from apps import home
 from apps import common
 from apps import system
 
-middleware.init_app(app)
+# middleware.init_app(app)
 account.register_blueprint(app)
 configuration.register_blueprint(app)
 deploy.register_blueprint(app)
