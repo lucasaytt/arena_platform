@@ -56,4 +56,7 @@ def auth_middleware():
     #         g.user.save()
     #         return None
     # return json_response(message='Auth fail, please login'), 401
+    g.user = User.query.first()
+    g.user.save()
     return None
+
