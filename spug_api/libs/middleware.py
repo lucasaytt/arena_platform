@@ -48,11 +48,12 @@ def auth_middleware():
     if request.path == '/account/users/login/' or request.path.startswith('/apis/configs/') \
             or request.path.startswith('/apis/files/'):
         return None
-    token = request.headers.get('X-TOKEN')
-    if token and len(token) == 32:
-        g.user = User.query.filter_by(access_token=token).first()
-        if g.user and g.user.is_active and g.user.token_expired >= time.time():
-            g.user.token_expired = time.time() + 8 * 60 * 60
-            g.user.save()
-            return None
-    return json_response(message='Auth fail, please login'), 401
+    # token = request.headers.get('X-TOKEN')
+    # if token and len(token) == 32:
+    #     g.user = User.query.filter_by(access_token=token).first()
+    #     if g.user and g.user.is_active and g.user.token_expired >= time.time():
+    #         g.user.token_expired = time.time() + 8 * 60 * 60
+    #         g.user.save()
+    #         return None
+    # return json_response(message='Auth fail, please login'), 401
+    return None
