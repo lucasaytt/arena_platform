@@ -2,7 +2,7 @@ from public import db
 from libs.model import ModelMixin
 from libs.tools import human_time
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 
 class Job(db.Model, ModelMixin):
@@ -39,7 +39,7 @@ class JobSchedule(db.Model, ModelMixin):
     job_status = db.Column(db.String(50))
     create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
     # onupdate设置自动更改
-    update_time = db.Column(db.DateTime, server_default='CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', comment='修改时间')
+    update_time = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='修改时间')
 
     __table_args__ = (
         db.UniqueConstraint('job_name', 'job_schedule_name', name='job_and_schedule'),
