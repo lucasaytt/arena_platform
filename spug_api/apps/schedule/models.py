@@ -22,7 +22,7 @@ class Job(db.Model, ModelMixin):
     enabled = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
     # onupdate设置自动更改
-    update_time = db.Column(db.DateTime, server_default='CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', comment='修改时间')
+    update_time = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='修改时间')
 
     def __repr__(self):
         return '<schedule.Job name=%r trigger=%r>' % (self.name, self.trigger)
@@ -62,7 +62,7 @@ class JobHistory(db.Model, ModelMixin):
     created = db.Column(db.String(20))
     create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
     # onupdate设置自动更改
-    update_time = db.Column(db.DateTime, server_default='CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', comment='修改时间')
+    update_time = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), comment='修改时间')
 
     @classmethod
     def write(cls, job_id, start_time, target, exit_code, stdout, stderr):
