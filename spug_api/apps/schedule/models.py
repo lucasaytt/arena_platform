@@ -32,14 +32,18 @@ class JobSchedule(db.Model, ModelMixin):
     __tablename__ = 'schedule_job_action'
 
     id = db.Column(db.Integer, primary_key=True)
-    job_name = db.Column(db.String(500), unique=True)
-    job_schedule_name = db.Column(db.String(500), unique=True)
+    job_name = db.Column(db.String(500))
+    job_schedule_name = db.Column(db.String(500))
     job_type = db.Column(db.String(500))
     job_run_time = db.Column(db.String(500))
     job_status = db.Column(db.String(50))
     create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
     # onupdate设置自动更改
     update_time = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now(), comment='修改时间')
+
+    __table_args__ = (
+        db.UniqueConstraint('job_name', 'job_schedule_name', name='job_and_schedule'),
+    )
 
     def __repr__(self):
         return '<schedule.Job_Schedule name=%r job_status=%r>' % (self.job_name, self.job_status)
