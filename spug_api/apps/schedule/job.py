@@ -1,7 +1,7 @@
 from flask import Blueprint, request, abort
 from libs.tools import json_response, JsonParser, Argument, human_diff_time
 from apps.schedule.scheduler import scheduler
-from apps.schedule.models import Job
+from apps.schedule.models import Job,JobSchedule
 from datetime import datetime
 from public import db
 from libs.decorators import require_permission
@@ -45,6 +45,27 @@ def get():
     return json_response(message=error)
 
 
+@blueprint.route('/get_schedule_instance', methods=['GET'])
+@require_permission('job_task_view')
+def get_schedule():
+    form, error = JsonParser(
+        Argument('page', type=int, default=1, required=False),
+        Argument('pagesize', type=int, default=10, required=False),
+        Argument('job_group', type=str, required=False),).parse(request.args)
+
+    if error is None:
+        if form.job_group:
+            job = JobSchedule.query.filter_by(group=form.job_group).order_by(JobSchedule.update_time.desc())
+        else:
+            job = JobSchedule.query.order_by(JobSchedule.update_time.desc())
+
+        total = job.count()
+        job_data = job.limit(form.pagesize).offset((form.page - 1) * form.pagesize).all()
+        jobs = [x.to_json() for x in job_data]
+        return json_response({'data': jobs, 'total': total})
+    return json_response(message=error)
+
+
 @blueprint.route('/', methods=['POST'])
 @require_permission('job_task_add')
 def post():
@@ -52,9 +73,18 @@ def post():
         'name', 'group', 'desc', 'command_user', 'command', 'targets',
         Argument('command_user', default='root')
     ).parse()
+
+    job_id = ''
     if error is None:
-        Job(**form).save()
-    return json_response(message=error)
+        # 增加任务名字重复判断
+        exist_job = Job.query.filter_by(name=form.name)
+        if exist_job.count() > 0:
+            job_create_error = form.name + '任务名已经存在!!!'
+            return json_response({'message': job_create_error})
+        else:
+            job = Job(**form).save()
+            job_id = job.id
+    return json_response({'message': error, 'id': job_id})
 
 
 @blueprint.route('/<int:job_id>', methods=['PUT'])
@@ -83,7 +113,7 @@ def set_trigger(job_id):
         job = Job.query.get_or_404(job_id)
         if job.update(**form):
             scheduler.update_job(job)
-    return json_response(message=error)
+    return json_response({'message': error})
 
 
 @blueprint.route('/<int:job_id>/switch', methods=['POST', 'DELETE'])
