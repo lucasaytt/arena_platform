@@ -68,7 +68,7 @@ def get_schedule():
 
 @blueprint.route('/get_instance_log', methods=['GET'])
 @require_permission('job_log')
-def get_schedule():
+def get_instance_log():
     form, error = JsonParser(
         Argument('task_instance_name', type=str, required=True),).parse(request.args)
 
