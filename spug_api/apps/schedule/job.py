@@ -66,11 +66,29 @@ def get_schedule():
     return json_response(message=error)
 
 
+@blueprint.route('/get_instance_log', methods=['GET'])
+@require_permission('job_log')
+def get_schedule():
+    form, error = JsonParser(
+        Argument('task_instance_name', type=str, required=True),).parse(request.args)
+
+    if error is None:
+        try:
+            path = '/tensorflow/{task_instance_name}/chief.log'.format(task_instance_name=form.task_instance_name)
+            log = open(path, 'r', encoding='UTF-8').read()
+            # 成功获取到md文件内容啦
+            return json_response({'data': log})
+        except OSError as reason:
+            error = '读取文件出错了T_T,出错原因是%s' % str(reason)
+    return json_response(message=error)
+
+
 @blueprint.route('/', methods=['POST'])
 @require_permission('job_task_add')
 def post():
     form, error = JsonParser(
-        'name', 'group', 'desc', 'command_user', 'command', 'targets',
+        'bu_name', 'owner', 'name', 'group', 'desc', 'command_user', 'command', 'targets',
+        Argument('bu_name', default='ad_user'),Argument('owner', default='rui.lu'),
         Argument('command_user', default='root')
     ).parse()
 
