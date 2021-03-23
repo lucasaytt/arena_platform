@@ -1,10 +1,15 @@
 from flask import Blueprint, request, abort
 from libs.tools import json_response, JsonParser, Argument, human_diff_time
 from apps.schedule.scheduler import scheduler
+from apps.assets.models import Host
 from apps.schedule.models import Job,JobSchedule
 from datetime import datetime
 from public import db
 from libs.decorators import require_permission
+import uuid
+from threading import Thread
+from libs.tools import json_response, JsonParser, Argument, QueuePool
+from libs.ssh import ssh_exec_command_with_stream, get_ssh_client
 
 
 blueprint = Blueprint(__name__, __name__)
@@ -109,8 +114,9 @@ def post():
 @require_permission('job_task_edit')
 def put(job_id):
     form, error = JsonParser(
-        'name', 'group', 'desc', 'command', 'targets',
-        Argument('command_user', default='root')
+        'bu_name', 'owner', 'name', 'group', 'desc', 'command', 'targets',
+        Argument('bu_name', default='ad_user'), Argument('owner', default='rui.lu'),
+        Argument('command_user', default='ad_user')
     ).parse()
     if error is None:
         job = Job.query.get_or_404(job_id)
@@ -165,3 +171,27 @@ def delete(job_id):
 def fetch_groups():
     apps = db.session.query(Job.group.distinct().label('group')).all()
     return json_response([x.group for x in apps])
+
+
+@blueprint.route('/exec_command', methods=['POST'])
+@require_permission('assets_host_exec')
+def exec_host_command():
+    form, error = JsonParser('hosts_id', 'command').parse()
+    if error is None:
+        ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
+        token = uuid.uuid4().hex
+        q = QueuePool.make_queue(token, len(ip_list))
+        for h in ip_list:
+            Thread(target=hosts_exec, args=(q, h.ssh_ip, h.ssh_port, form.command)).start()
+        return json_response(token)
+    return json_response(message=error)
+
+
+def hosts_exec(q, ip, port, command):
+    ssh_client = get_ssh_client(ip, port)
+    q.destroyed.append(ssh_client.close)
+    output = ssh_exec_command_with_stream(ssh_client, command)
+    for line in output:
+        q.put({ip: line})
+    q.put({ip: '\n** 执行完成 **'})
+    q.done()

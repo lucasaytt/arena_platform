@@ -1,6 +1,5 @@
 from flask import Blueprint, request
 from apps.assets.models import Host, HostExtend
-from apps.deploy.models import AppHostRel
 from libs.tools import json_response, JsonParser, Argument
 from apps.setting import utils, Setting
 from libs import ssh
@@ -9,6 +8,8 @@ import math
 from public import db
 from libs.decorators import require_permission
 from apps.assets.utils import excel_parse
+import paramiko
+import re
 
 blueprint = Blueprint(__name__, __name__)
 
@@ -50,8 +51,6 @@ def post():
 @require_permission('assets_host_del')
 def delete(host_id):
     host = Host.query.get_or_404(host_id)
-    if AppHostRel.query.filter_by(host_id=host_id).first():
-        return json_response(message='请先取消与应用的关联后，再尝试删除该主机。')
     host.delete()
     return json_response()
 
@@ -137,11 +136,18 @@ def host_import():
 
 
 def sync_host_info(host_id, uri):
-    host_info = DockerClient(base_url=uri).docker_info()
-    operate_system = host_info.get('OperatingSystem')
-    memory = math.ceil(int(host_info.get('MemTotal'))/1024/1024/1024)
-    cpu = host_info.get('NCPU')
-    # outer_ip = 1
-    # inner_ip = 2
-    HostExtend.upsert({'host_id': host_id}, host_id=host_id, operate_system=operate_system, memory=memory, cpu=cpu)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    cli = Host.query.get_or_404(host_id)
+    ssh.connect(cli.ssh_ip, username='hadoop', password='')
+
+    stdin, stdout, stderr = ssh.exec_command('cat /proc/meminfo')
+    str_out = stdout.read().decode()
+    str_total = re.search('MemTotal:.*?\n', str_out).group()
+    memory = re.search('\d+', str_total).group()
+
+    str_free = re.search('MemAvailable:.*?\n', str_out).group()
+
+    operate_system = 'centos';
+    HostExtend.upsert({'host_id': host_id}, host_id=host_id, operate_system=operate_system, memory=memory, cpu='')
     return True
