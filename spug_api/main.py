@@ -2,7 +2,6 @@ from public import app
 from config import DEBUG
 from libs import middleware
 from apps import deploy
-from apps import configuration
 from apps import assets
 from apps import account
 from apps import apis
@@ -13,7 +12,6 @@ from apps import system
 
 middleware.init_app(app)
 account.register_blueprint(app)
-configuration.register_blueprint(app)
 deploy.register_blueprint(app)
 assets.register_blueprint(app)
 apis.register_blueprint(app)
