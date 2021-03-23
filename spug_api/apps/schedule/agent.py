@@ -3,8 +3,6 @@ from datetime import datetime
 from threading import Thread
 from functools import partial
 from apps.assets.models import Host
-from apps.configuration.models import Environment
-from apps.deploy.models import App
 from apps.schedule.models import JobHistory
 from libs.utils import Container
 from libs.ssh import ssh_exec_command
@@ -29,15 +27,6 @@ def agent(job_id, user, command, targets):
             host_ids.add(cli_id)
             app_ids.add(pro_id)
             env_ids.add(env_id)
-    if app_ids:
-        for app in App.query.filter(App.id.in_(app_ids)).all():
-            info['apps'][str(app.id)] = app
-    if host_ids:
-        for cli in Host.query.filter(Host.id.in_(host_ids)).all():
-            info['hosts'][str(cli.id)] = cli
-    if env_ids:
-        for env in Environment.query.filter(Environment.id.in_(env_ids)).all():
-            info['environments'][str(env.id)] = env
     for t in threads:
         t.start()
     for t in threads:
