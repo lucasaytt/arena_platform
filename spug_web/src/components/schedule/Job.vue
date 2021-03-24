@@ -238,6 +238,8 @@
                     }
                 });
                 this.form['targets'] = tmp.filter(x => x).join(',');
+                this.form['bu_name'] = '';
+                this.form['owner'] = '';
                 let request;
                 if (this.form.id) {
                     request = this.$http.put(`/api/schedule/jobs/${this.form.id}`, this.form)
