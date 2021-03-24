@@ -34,6 +34,10 @@
                                    style="margin-right: 15px"
                                    @click="do_switch(scope.row)">启用
                         </el-button>
+                        <el-button v-else size="small" type="success" :loading="btnSwitchLoading[scope.row.id]"
+                                   style="margin-right: 15px"
+                                   @click="do_switch(scope.row)">查看当前日志
+                        </el-button>
                         <el-dropdown trigger="click" @command="do_action">
                             <el-button type="text">更多<i class="el-icon-caret-bottom el-icon--right"></i></el-button>
                             <el-dropdown-menu slot="dropdown">
@@ -164,6 +168,8 @@
                 job_group: '',
                 currentPage: 1,
                 form: {
+                    bu_name: '',
+                    owner: '',
                     group: ''
                 },
                 targets: [[]],
@@ -171,7 +177,6 @@
                 options: [
                     {label: '本地', value: 'local'},
                     {label: '主机', value: 'host', children: []},
-                    {label: '容器', value: 'container', children: []},
                 ]
             }
         },
@@ -215,6 +220,7 @@
 
 
             addOpen () {
+                this._loadNode();
                 this.form = {group: ''};
                 this.targets = [[]];
                 this.clear_disabled(this.options);

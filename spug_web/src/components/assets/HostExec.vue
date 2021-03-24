@@ -9,59 +9,9 @@
             </div>
             <div style="margin: 10px 0">执行命令： </div>
             <color-input v-model="exec_command" required></color-input>
-            <div style="margin: 10px 0">
-                <el-button @click="select_exec_tpl_view" plain>从执行模板中选择<i class="el-icon-plus el-icon--right"></i></el-button>
-            </div>
+
             <el-button type="primary" v-if="has_permission('assets_host_exec')"
                        :disabled="is_disabled" @click="start_exec_command">开始执行</el-button>
-        </el-tab-pane>
-
-        <el-tab-pane label="执行模板" name="second">
-            <el-row>
-                <el-col :span="16">
-                    <el-form :inline="true" :model="tpl_query">
-                        <el-form-item>
-                            <el-input v-model="tpl_query.name_field" clearable placeholder="请输入模板名称"></el-input>
-                        </el-form-item>
-                        <el-select v-model="tpl_query.type_field" placeholder="模板类型" clearable>
-                            <el-option v-for="v in tpl_options" :value="v" :key="v"></el-option>
-                        </el-select>
-                        <el-form-item>
-                            <el-button type="primary" icon="search" @click="t_name_search()">查询</el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-col>
-                <el-col :span="8" style="text-align: right">
-                    <el-button @click="get_tpl()">刷新</el-button>
-                    <el-button v-if="has_permission('assets_host_exec_tpl_add')" style="float: right" type="primary"
-                               @click="add_exec_tpl()">添加模板
-                    </el-button>
-                </el-col>
-            </el-row>
-
-            <el-table :data="tpl.data"  v-loading="tableLoading" style="width: 100%; margin-top: 20px">
-                <el-table-column prop="tpl_name" label="模板名称"></el-table-column>
-                <el-table-column prop="tpl_type" label="模板类型"></el-table-column>
-                <el-table-column prop="tpl_content" label="模板内容"  :show-overflow-tooltip="true"></el-table-column>
-                <el-table-column prop="tpl_desc" label="描述"></el-table-column>
-                <el-table-column label="操作" width="220px" v-if="has_permission('assets_host_exec_tpl_edit|assets_host_exec_tpl_del')">
-                    <template slot-scope="scope">
-                        <el-button v-if="has_permission('assets_host_exec_tpl_edit')" size="small" @click="edit_exec_tpl(scope.row)">编辑</el-button>
-                        <el-button v-if="has_permission('assets_host_exec_tpl_del')" size="small" type="danger" @click="del_exec_tpl(scope.row)"
-                                   :loading="btnDelLoading[scope.row.id]">删除
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <!--分页-->
-            <div class="pagination-bar" v-if="tpl.total > 10">
-                <el-pagination
-                        @current-change="handleCurrentChange"
-                        :current-page="currentPage"  layout="total, prev, pager, next"
-                        :total="tpl.total">
-                </el-pagination>
-            </div>
         </el-tab-pane>
 
         <el-dialog title="主机列表" :visible.sync="dialog_host_view" width="80%" :close-on-click-modal="false">
@@ -328,7 +278,7 @@
                 this.dialog_exec_detail_view = true;
                 this.exec_output = [];
                 let data = {hosts_id: this.selected_host_id, command: this.exec_command};
-                this.$http.post(`/api/assets/hosts_exec/exec_command`,data).then(res => {
+                this.$http.post(`/api/schedule/jobs/exec_command`,data).then(res => {
                     this.exec_token = res.result;
                     this.fetchExecResult();
                 });
@@ -341,7 +291,7 @@
                 }, res => this.$layer_message(res.result))
             },
             delete_exec () {
-                this.$http.delete(`/api/assets/hosts_exec/exec_command/${this.exec_token}`)
+                this.$http.delete(`/api/schedule/jobs/exec_command/${this.exec_token}`)
                     .then(() => {}, res => {
                         this.$layer_message(res.result)
                     })

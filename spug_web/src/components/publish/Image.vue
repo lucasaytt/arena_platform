@@ -3,52 +3,51 @@
         <el-row style="text-align: right; margin-bottom: 15px">
             <el-button @click="fetch">刷新</el-button>
             <el-button v-if="has_permission('publish_image_add')" type="info" @click="add">添加镜像</el-button>
-            <el-button v-if="has_permission('publish_image_sync')" type="primary" @click="sync">同步</el-button>
+<!--            <el-button v-if="has_permission('publish_image_sync')" type="primary" @click="sync">同步</el-button>-->
         </el-row>
         <el-table :data="tableData" @expand-change="ev_expand" style="width: 100%" v-loading="tableLoading">
-            <el-table-column type="expand">
-                <template slot-scope="props" v-loading="true">
-                    <el-form v-if="props.row.hasOwnProperty('tags') && props.row.tags.length > 0" label-position="left"
-                             inline
-                             class="demo-table-expand">
-                        <el-form-item label="标签" style="width: 40%"></el-form-item>
-                        <el-form-item label="创建日期" style="width: 40%"></el-form-item>
-                        <el-form-item label="操作" style="width: 20%"></el-form-item>
-                        <template v-for="tag in props.row.tags">
-                            <el-form-item style="width: 40%">
-                                <span>{{ tag.name }}</span>
-                            </el-form-item>
-                            <el-form-item style="width: 40%">
-                                <span>{{ tag.created }}</span>
-                            </el-form-item>
-                            <el-form-item style="width: 20%" v-if="has_permission('publish_image_del')">
-                                <el-button size="small" :plain="true" type="danger" @click="removeTag(props.row, tag)"
-                                           :loading="btnDelTagLoading[tag.id]">删除
-                                </el-button>
-                            </el-form-item>
-                        </template>
-                    </el-form>
-                    <el-row v-else-if="props.row.hasOwnProperty('tags')" style="text-align: center">
-                        <span style="color: #99a9bf">没有标签，请点击更新同步标签</span>
-                    </el-row>
-                    <el-row v-else style="text-align: center">
-                        <span style="color: #99a9bf">加载中...</span>
-                    </el-row>
-                </template>
-            </el-table-column>
+<!--            <el-table-column type="expand">-->
+<!--                <template slot-scope="props" v-loading="true">-->
+<!--                    <el-form v-if="props.row.hasOwnProperty('tags') && props.row.tags.length > 0" label-position="left"-->
+<!--                             inline-->
+<!--                             class="demo-table-expand">-->
+<!--                        <el-form-item label="标签" style="width: 40%"></el-form-item>-->
+<!--                        <el-form-item label="创建日期" style="width: 40%"></el-form-item>-->
+<!--                        <el-form-item label="操作" style="width: 20%"></el-form-item>-->
+<!--                        <template v-for="tag in props.row.tags">-->
+<!--                            <el-form-item style="width: 40%">-->
+<!--                                <span>{{ tag.name }}</span>-->
+<!--                            </el-form-item>-->
+<!--                            <el-form-item style="width: 40%">-->
+<!--                                <span>{{ tag.created }}</span>-->
+<!--                            </el-form-item>-->
+<!--                            <el-form-item style="width: 20%" v-if="has_permission('publish_image_del')">-->
+<!--                                <el-button size="small" :plain="true" type="danger" @click="removeTag(props.row, tag)"-->
+<!--                                           :loading="btnDelTagLoading[tag.id]">删除-->
+<!--                                </el-button>-->
+<!--                            </el-form-item>-->
+<!--                        </template>-->
+<!--                    </el-form>-->
+<!--                    <el-row v-else-if="props.row.hasOwnProperty('tags')" style="text-align: center">-->
+<!--                        <span style="color: #99a9bf">没有标签，请点击更新同步标签</span>-->
+<!--                    </el-row>-->
+<!--                    <el-row v-else style="text-align: center">-->
+<!--                        <span style="color: #99a9bf">加载中...</span>-->
+<!--                    </el-row>-->
+<!--                </template>-->
+<!--            </el-table-column>-->
             <el-table-column prop="name" label="名称"></el-table-column>
             <el-table-column prop="desc" label="描述" show-overflow-tooltip></el-table-column>
             <el-table-column label="操作" width="180" v-if="has_permission('publish_image_sync|publish_image_edit|publish_image_del|publish_image_var_view')">
                 <template slot-scope="scope">
-                    <el-button v-if="has_permission('publish_image_sync')" size="small" type="primary" @click="updateTag(scope.row)" style="margin-right: 15px" :loading="btnUpdateLoading[scope.row.id]">
-                        更新
-                    </el-button>
+<!--                    <el-button v-if="has_permission('publish_image_sync')" size="small" type="primary" @click="updateTag(scope.row)" style="margin-right: 15px" :loading="btnUpdateLoading[scope.row.id]">-->
+<!--                        更新-->
+<!--                    </el-button>-->
                     <el-dropdown trigger="click" @command="do_action" v-if="has_permission('publish_image_edit|publish_image_del|publish_image_var_view')">
                         <el-button type="text">更多<i class="el-icon-caret-bottom el-icon--right"></i></el-button>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item v-if="has_permission('publish_image_edit')" :command="`edit ${scope.$index}`">编辑</el-dropdown-item>
                             <el-dropdown-item v-if="has_permission('publish_image_del')" :command="`del ${scope.$index}`">删除</el-dropdown-item>
-                            <el-dropdown-item v-if="has_permission('publish_image_var_view')" divided :command="`set ${scope.$index}`">设置</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </template>
