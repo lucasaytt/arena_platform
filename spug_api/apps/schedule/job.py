@@ -195,3 +195,12 @@ def hosts_exec(q, ip, port, command):
         q.put({ip: line})
     q.put({ip: '\n** 执行完成 **'})
     q.done()
+
+
+@blueprint.route('/exec_command/<string:token>', methods=['DELETE'])
+@require_permission('assets_host_exec')
+def exec_delete(token):
+    q = QueuePool.get_queue(token)
+    if q:
+        q.destroy()
+    return json_response()
