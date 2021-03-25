@@ -12,5 +12,5 @@ def index():
 
 
 @blueprint.route('', methods=['GET'])
-def index():
+def get():
     return app.send_static_file('index.html')
