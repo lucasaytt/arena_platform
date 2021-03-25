@@ -1,9 +1,6 @@
-from apps.account.models import User
-from apps.assets.models import Host
-from apps.schedule.models import Job
+
+from public import app
 from flask import Blueprint
-from flask import Flask
-app = Flask(__name__, static_url_path='')
 
 
 blueprint = Blueprint(__name__, __name__)
