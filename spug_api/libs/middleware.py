@@ -68,7 +68,7 @@ def auth_middleware():
 def auth_request_url():
     print("====request.path===="+request.path)
 
-    if request.path.startswith("/schedule"):
+    if request.path.startswith("/list"):
         return app.send_static_file("index.html")
     else:
         return None
