@@ -49,7 +49,13 @@ def login():
         return redirect(sl)
     else:
         token_params.update({"code": code})
-        return app.send_static_file('index.html')
+        ret = requests.post(sso_params.get("cootek.token"), data=token_params)
+        token = json.loads(ret.text)
+        if "access_token" in token and "id_token" in token:
+            return app.send_static_file('index.html')
+        else:
+            sl = "?".join([sso_params.get("cootek.authorize"), urlencode(authorize_params)])
+            return redirect(sl)
 
 
 @blueprint.route('/get_user_info', methods=['GET'])
@@ -74,6 +80,17 @@ def sso_get_user_info():
 
     token = json.loads(ret.text)
     if "access_token" in token and "id_token" in token:
+        if "access_token" in token and "id_token" in token:
+            # Analyse username from id_token
+            user_info = token['id_token'].split(".")[1]
+            missing_padding = 4 - len(user_info) % 4
+            if missing_padding:
+                user_info += '=' * missing_padding
+            temp_user_info = base64.b64decode(user_info)
+            user_info = json.loads(bytes.decode(temp_user_info))
+
+            username = user_info['upn'].split("@")[0]
+            sid = user_info['sid'].split("@")[0]
         # Analyse username from id_token
         user_info = token['id_token'].split(".")[1]
         missing_padding = 4 - len(user_info) % 4
