@@ -1,5 +1,5 @@
 # coding=utf-8
-from flask import request, make_response, g, redirect
+from flask import request, make_response, g, redirect, send_from_directory
 from libs.tools import json_response
 from apps.account.models import User
 from public import app
@@ -12,6 +12,8 @@ import requests
 import json
 import base64
 from libs.tools import json_response, JsonParser
+import os
+
 
 
 def init_app(app):
@@ -71,22 +73,25 @@ def auth_middleware():
 
 def auth_request_url():
     print("====request.path===="+request.path)
-    # code = request.values.get("code")
-    # if code is None:
-    #     # Authorize the client from SSO, redirect as a query with "code"
-    #     sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
-    #     return redirect(sl)
-    # else:
-    #     config.token_params.update({"code": code})
-    #     ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
-    #     token = json.loads(ret.text)
-    #     if "access_token" in token and "id_token" in token:
-    #         print("111111111111111111"+str(not request.path.startswith("/schedule") and not request.path.startswith("/index")))
-    #         if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
-    #             print("222222222")
-    #             return redirect("/index")
-    #     else:
-    #         sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
-    #         return redirect(sl)
+    code = request.values.get("code")
+    if code is None:
+        # Authorize the client from SSO, redirect as a query with "code"
+        sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+        return redirect(sl)
+    else:
+        config.token_params.update({"code": code})
+        ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
+        token = json.loads(ret.text)
+        if "access_token" in token and "id_token" in token:
+            print("111111111111111111"+str(not request.path.startswith("/schedule") and not request.path.startswith("/index")))
+            if request.path.startswith("/index"):
+                return redirect("/index?code="+code)
+            if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
+                print("222222222")
+                if os.path.exists('static/' + request.path):
+                     return send_from_directory("../static",request.path, cache_timeout=604800)
+        else:
+            sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+            return redirect(sl)
 
 
