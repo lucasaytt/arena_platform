@@ -83,5 +83,5 @@ def sso_get_user_info():
 
 @blueprint.route('/logout', methods=['GET'])
 def logout():
-        sl = "?".join([sso_params.get("cootek.logout"), urlencode(logout_params)])
+        sl = "?".join([config.sso_params.get("cootek.logout"), urlencode(config.logout_params)])
         return redirect(sl)

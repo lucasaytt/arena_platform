@@ -71,20 +71,20 @@ def auth_middleware():
 
 def auth_request_url():
     print("====request.path===="+request.path)
-    # code = request.values.get("code")
-    # if code is None:
-    #     # Authorize the client from SSO, redirect as a query with "code"
-    #     sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
-    #     return redirect(sl)
-    # else:
-    #     config.token_params.update({"code": code})
-    #     ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
-    #     token = json.loads(ret.text)
-    #     if "access_token" in token and "id_token" in token:
-    #         if not request.path.startswith("/schedule"):
-    #             return redirect("/index")
-    #     else:
-    #         sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
-    #         return redirect(sl)
+    code = request.values.get("code")
+    if code is None:
+        # Authorize the client from SSO, redirect as a query with "code"
+        sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+        return redirect(sl)
+    else:
+        config.token_params.update({"code": code})
+        ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
+        token = json.loads(ret.text)
+        if "access_token" in token and "id_token" in token:
+            if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
+                return redirect("/index")
+        else:
+            sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+            return redirect(sl)
 
 
