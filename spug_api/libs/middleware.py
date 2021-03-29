@@ -1,16 +1,24 @@
 # coding=utf-8
-from flask import request, make_response, g
+from flask import request, make_response, g, redirect
 from libs.tools import json_response
 from apps.account.models import User
 from public import app
 import time
 import flask_excel as excel
+from urllib.parse import urlencode
+import apps.index.config as config
+from urllib.parse import urlencode
+import requests
+import json
+import base64
+from libs.tools import json_response, JsonParser
 
 
 def init_app(app):
     excel.init_excel(app)
     app.before_request(cross_domain_access_before)
     app.before_request(auth_middleware)
+    app.before_request(auth_request_url)
     app.after_request(cross_domain_access_after)
     app.register_error_handler(Exception, exception_handler)
     app.register_error_handler(404, page_not_found)
@@ -59,4 +67,23 @@ def auth_middleware():
     g.user = User.query.first()
     g.user.save()
     return None
+
+
+def auth_request_url():
+    code = request.values.get("code")
+    if code is None:
+        # Authorize the client from SSO, redirect as a query with "code"
+        sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+        return redirect(sl)
+    else:
+        config.token_params.update({"code": code})
+        ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
+        token = json.loads(ret.text)
+        if "access_token" in token and "id_token" in token:
+            if not request.path.startswith("/schedule"):
+                return app.send_static_file('index.html')
+        else:
+            sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+            return redirect(sl)
+
 
