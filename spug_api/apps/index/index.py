@@ -29,6 +29,7 @@ def login():
         config.token_params.update({"code": code})
         ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
         token = json.loads(ret.text)
+        print("9999999999999"+ret.text)
         if "access_token" in token and "id_token" in token:
             print(555555555)
             return app.send_static_file('index.html')
