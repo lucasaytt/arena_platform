@@ -81,6 +81,7 @@ def auth_request_url():
         ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
         token = json.loads(ret.text)
         if "access_token" in token and "id_token" in token:
+            print("111111111111111111"+str(not request.path.startswith("/schedule") and not request.path.startswith("/index")))
             if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
                 return redirect("/index")
         else:
