@@ -85,7 +85,7 @@ def auth_request_url():
         if "access_token" in token and "id_token" in token:
             print("111111111111111111"+str(not request.path.startswith("/schedule") and not request.path.startswith("/index")))
             if request.path.startswith("/index"):
-                return redirect("/index?code="+code)
+                return app.send_static_file('index.html')
             if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
                 print("222222222")
                 if os.path.exists('static/' + request.path):
