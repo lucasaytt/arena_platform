@@ -5,12 +5,7 @@ from apps.account.models import User
 from public import app
 import time
 import flask_excel as excel
-from urllib.parse import urlencode
-import apps.index.config as config
-from urllib.parse import urlencode
-import requests
-import json
-import base64
+from flask_login import login_user,current_user,login_manager
 from libs.tools import json_response, JsonParser
 import os
 
@@ -72,7 +67,8 @@ def auth_middleware():
 
 def auth_request_url():
     print("====request.path===="+request.path)
-    if request.path.startswith("/list"):
+
+    if request.path.startswith("/schedule"):
         return app.send_static_file("index.html")
     else:
         return None
