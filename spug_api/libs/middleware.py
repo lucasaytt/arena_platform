@@ -84,7 +84,7 @@ def auth_request_url():
         token = json.loads(ret.text)
         print("=======auth_request_url  ret.text========"+ret.text)
         if "access_token" in token and "id_token" in token:
-            print("========index request========="+request.path.startswith("/index"))
+            print("========index request========="+str(request.path.startswith("/index")))
             if request.path.startswith("/index"):
                 return app.send_static_file('index.html')
 
