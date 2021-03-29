@@ -43,23 +43,16 @@ def registry_command(cmd_str, cmd_desc=''):
 def init_db():
     from public import db
     from config import BASE_DIR
-    #import apps.account.models
-    #import apps.configuration.models
-    #import apps.deploy.models
-    #import apps.assets.models
-    from  apps.schedule.models import JobSchedule
-    #import apps.setting.models
+    import apps.account.models
+    import apps.deploy.models
+    import apps.assets.models
+    import apps.schedule.models
+    import apps.setting.models
 
     user_input = input('是否要初始化数据库，该操作会清空所有数据[y|n]？')
     if user_input.strip() == 'y':
         #db.drop_all()
         db.create_all()
-        # with open(os.path.join(BASE_DIR, 'libs', 'sql', 'permissions.sql'), 'r') as f:
-        #     line = f.readline()
-        #     while line:
-        #         if line.startswith('INSERT INTO'):
-        #             db.engine.execute(line.strip())
-        #         line = f.readline()
         print('数据库已初始化成功！')
         user_input = input('是否需要创建管理员账户[y|n]？')
         if user_input.strip() == 'y':
@@ -117,3 +110,4 @@ if __name__ == '__main__':
         r_func(*sys.argv)
     else:
         print('遇到了不可能会出现的错误！')
+
