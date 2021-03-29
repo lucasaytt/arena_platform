@@ -7,7 +7,7 @@ import requests
 import json
 import base64
 from libs.tools import json_response, JsonParser
-import config
+from apps.index import config
 
 
 blueprint = Blueprint(__name__, __name__)
