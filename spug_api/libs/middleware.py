@@ -82,12 +82,17 @@ def auth_request_url():
         config.token_params.update({"code": code})
         ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
         token = json.loads(ret.text)
+        print("=======auth_request_url  ret.text========"+ret.text)
         if "access_token" in token and "id_token" in token:
-            print("111111111111111111"+str(not request.path.startswith("/schedule") and not request.path.startswith("/index")))
+            print("========index request========="+request.path.startswith("/index"))
             if request.path.startswith("/index"):
                 return app.send_static_file('index.html')
+
+            print("==========static =========" + str(
+                not request.path.startswith("/schedule") and not request.path.startswith("/index")))
             if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
                 print("222222222")
+                print(os.path.exists('static/' + request.path))
                 if os.path.exists('static/' + request.path):
                      return send_from_directory("../static",request.path, cache_timeout=604800)
         else:
