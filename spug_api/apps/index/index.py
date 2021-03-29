@@ -49,6 +49,7 @@ def login():
         return redirect(sl)
     else:
         token_params.update({"code": code})
+        return app.send_static_file('index.html')
 
 
 @blueprint.route('/get_user_info', methods=['GET'])
