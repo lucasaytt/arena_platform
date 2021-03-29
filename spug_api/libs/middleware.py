@@ -83,6 +83,7 @@ def auth_request_url():
         if "access_token" in token and "id_token" in token:
             print("111111111111111111"+str(not request.path.startswith("/schedule") and not request.path.startswith("/index")))
             if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
+                print("222222222")
                 return redirect("/index")
         else:
             sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
