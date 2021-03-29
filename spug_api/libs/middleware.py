@@ -15,7 +15,6 @@ from libs.tools import json_response, JsonParser
 import os
 
 
-
 def init_app(app):
     excel.init_excel(app)
     app.before_request(cross_domain_access_before)
@@ -73,34 +72,6 @@ def auth_middleware():
 
 def auth_request_url():
     print("====request.path===="+request.path)
-    print((request.path.startswith("/js") or request.path.startswith("/css")) and os.path.exists('static' + request.path))
-    if (request.path.startswith("js") or request.path.startswith("css")) and os.path.exists('static' + request.path):
-        return send_from_directory("../static", request.path, cache_timeout=604800)
-    else:
-        code = request.values.get("code")
-        if code is None:
-            # Authorize the client from SSO, redirect as a query with "code"
-            sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
-            return redirect(sl)
-        else:
-            config.token_params.update({"code": code})
-            ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
-            token = json.loads(ret.text)
-            print("=======auth_request_url  ret.text========"+ret.text)
-            if "access_token" in token and "id_token" in token:
-                print("========index request========="+str(request.path.startswith("/index")))
-                if request.path.startswith("/index"):
-                    return app.send_static_file('index.html')
 
-                print("==========static =========" + str(
-                    not request.path.startswith("/schedule") and not request.path.startswith("/index")))
-                if not request.path.startswith("/schedule") and not request.path.startswith("/index"):
-                    print("222222222")
-                    print(os.path.exists('static/' + request.path))
-                    if os.path.exists('static/' + request.path):
-                         return send_from_directory("../static",request.path, cache_timeout=604800)
-            else:
-                sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
-                return redirect(sl)
 
 
