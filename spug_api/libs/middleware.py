@@ -73,7 +73,7 @@ def auth_middleware():
 
 def auth_request_url():
     print("====request.path===="+request.path)
-
+    print((request.path.startswith("js") or request.path.startswith("css")) and os.path.exists('static/' + request.path))
     if (request.path.startswith("js") or request.path.startswith("css")) and os.path.exists('static/' + request.path):
         return send_from_directory("../static", request.path, cache_timeout=604800)
     else:
