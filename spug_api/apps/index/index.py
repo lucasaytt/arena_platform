@@ -7,36 +7,13 @@ import requests
 import json
 import base64
 from libs.tools import json_response, JsonParser
+import config
 
 
 blueprint = Blueprint(__name__, __name__)
 login_limit = defaultdict(int)
 
-sso_params = {
-  "cootek.authorize": "https://idcsso.corp.cootek.com/adfs/oauth2/authorize/",
-  "cootek.token": "https://idcsso.corp.cootek.com/adfs/oauth2/token",
-  "cootek.logout": "https://idcsso.corp.cootek.com/adfs/oauth2/logout",
-  "cootek.client-id": "a6e7edae-e3b8-43fd-92bc-f6208368b8be",
-  "cootek.client-secret": "E4wjVfZeN_YoUA16GvyrV5SmwC7oplmsY20p24ru",
-}
 
-authorize_params = {
-    "response_type": "code",
-    "client_id": "a6e7edae-e3b8-43fd-92bc-f6208368b8be",
-    "redirect_uri": "https://tensorflow-test.cootekos.com/index",
-}
-
-token_params = {
-    "grant_type": "authorization_code",
-    "code": "",
-    "client_id": "a6e7edae-e3b8-43fd-92bc-f6208368b8be",
-    "redirect_uri": "https://tensorflow-test.cootekos.com/index",
-    "client_secret": "E4wjVfZeN_YoUA16GvyrV5SmwC7oplmsY20p24ru",
-}
-
-logout_params = {
-    "client_id": "a6e7edae-e3b8-43fd-92bc-f6208368b8be",
-}
 
 
 @blueprint.route('/', methods=['GET'])
@@ -45,16 +22,16 @@ def login():
     code = request.values.get("code")
     if code is None:
         # Authorize the client from SSO, redirect as a query with "code"
-        sl = "?".join([sso_params.get("cootek.authorize"), urlencode(authorize_params)])
+        sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
         return redirect(sl)
     else:
-        token_params.update({"code": code})
-        ret = requests.post(sso_params.get("cootek.token"), data=token_params)
+        config.token_params.update({"code": code})
+        ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
         token = json.loads(ret.text)
         if "access_token" in token and "id_token" in token:
             return app.send_static_file('index.html')
         else:
-            sl = "?".join([sso_params.get("cootek.authorize"), urlencode(authorize_params)])
+            sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
             return redirect(sl)
 
 
@@ -63,19 +40,19 @@ def sso_get_user_info():
     code = request.values.get("code")
     if code is None:
         # Authorize the client from SSO, redirect as a query with "code"
-        sl = "?".join([sso_params.get("cootek.authorize"), urlencode(authorize_params)])
+        sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
         return redirect(sl)
     else:
-        token_params.update({"code": code})
+        config.token_params.update({"code": code})
     try:
         # Request access_token and id_token from SSO
         # Username and password required.
-        ret = requests.post(sso_params.get("cootek.token"), data=token_params)
+        ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
     except Exception:
         import traceback
         print('something wrong when request token')
         traceback.print_exc()
-        sl = "?".join([sso_params.get("cootek.authorize"), urlencode(authorize_params)])
+        sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
         return redirect(sl)
 
     token = json.loads(ret.text)
