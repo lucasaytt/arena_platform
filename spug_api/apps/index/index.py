@@ -23,15 +23,18 @@ def login():
     if code is None:
         # Authorize the client from SSO, redirect as a query with "code"
         sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+        print("3333333333")
         return redirect(sl)
     else:
         config.token_params.update({"code": code})
         ret = requests.post(config.sso_params.get("cootek.token"), data=config.token_params)
         token = json.loads(ret.text)
         if "access_token" in token and "id_token" in token:
+            print(555555555)
             return app.send_static_file('index.html')
         else:
             sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+            print(4444444444)
             return redirect(sl)
 
 
@@ -41,6 +44,7 @@ def sso_get_user_info():
     if code is None:
         # Authorize the client from SSO, redirect as a query with "code"
         sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+        print(7777777)
         return redirect(sl)
     else:
         config.token_params.update({"code": code})
@@ -53,6 +57,7 @@ def sso_get_user_info():
         print('something wrong when request token')
         traceback.print_exc()
         sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
+        print(888888888)
         return redirect(sl)
 
     token = json.loads(ret.text)
@@ -84,4 +89,5 @@ def sso_get_user_info():
 @blueprint.route('/logout', methods=['GET'])
 def logout():
         sl = "?".join([config.sso_params.get("cootek.logout"), urlencode(config.logout_params)])
+        print(66666666)
         return redirect(sl)
