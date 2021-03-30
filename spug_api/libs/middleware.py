@@ -36,7 +36,8 @@ def cross_domain_access_after(response):
 
 
 def page_not_found(_):
-    return json_response(message='Resource not found'), 404
+    return redirect("/index")
+    #return json_response(message='Resource not found'), 404
 
 
 def exception_handler(ex):
@@ -47,7 +48,6 @@ def exception_handler(ex):
     return json_response(message=message)
 
 
-@login_required
 def auth_request_url():
     print("====request.path====", request.path)
     if not current_user.is_anonymous:
