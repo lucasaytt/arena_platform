@@ -49,6 +49,7 @@ def exception_handler(ex):
     return json_response(message=message)
 
 
+@login_required
 def auth_request_url():
     print("====request.path====", request.path)
     if not current_user.is_anonymous:
