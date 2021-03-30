@@ -36,9 +36,7 @@ def cross_domain_access_after(response):
 
 
 def page_not_found(_):
-    #redirect("/index")
-    return app.send_static_file("index.html")
-    #return json_response(message='Resource not found'), 404
+    return json_response(message='Resource not found'), 404
 
 
 def exception_handler(ex):
