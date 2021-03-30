@@ -48,7 +48,7 @@ def login():
             user.access_token = token
             user.token_expired = time.time() + 8 * 60 * 60
             user.save()
-            g.user = user
+            login_user(user)
             return app.send_static_file('index.html')
         else:
             sl = "?".join([config.sso_params.get("cootek.authorize"), urlencode(config.authorize_params)])
