@@ -13,6 +13,7 @@ import os
 def init_app(app):
     excel.init_excel(app)
     app.before_request(cross_domain_access_before)
+    app.before_request(auth_user)
     app.before_request(auth_request_url)
     app.after_request(cross_domain_access_after)
     app.register_error_handler(Exception, exception_handler)
@@ -46,6 +47,10 @@ def exception_handler(ex):
     if len(message) > 60:
         message = message[:60] + '...'
     return json_response(message=message)
+
+
+def auth_user():
+    g.user = current_user
 
 
 def auth_request_url():
