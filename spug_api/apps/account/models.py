@@ -16,8 +16,3 @@ class User(db.Model, ModelMixin, UserMixin):
     create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
     update_time = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
                             comment='修改时间')
-
-
-@login_manager.user_loader
-def load_user(userid):
-    return None

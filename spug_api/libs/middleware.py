@@ -48,6 +48,7 @@ def exception_handler(ex):
 
 
 def auth_request_url():
+    print("=========hahahahahah========" + current_user.is_anonymous)
     print("====request.path===="+request.path+"   "+current_user.is_authenticated+"  "+current_user.username)
     if not request.path.startswith("/schedule") and current_user.is_authenticated:
         return app.send_static_file("index.html")
