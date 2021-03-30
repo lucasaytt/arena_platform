@@ -13,7 +13,7 @@ import os
 def init_app(app):
     excel.init_excel(app)
     app.before_request(cross_domain_access_before)
-    app.before_request(auth_middleware)
+    # app.before_request(auth_middleware)
     app.before_request(auth_request_url)
     app.after_request(cross_domain_access_after)
     app.register_error_handler(Exception, exception_handler)
@@ -48,27 +48,26 @@ def exception_handler(ex):
     return json_response(message=message)
 
 
-def auth_middleware():
-    if request.path == '/account/users/login/' or request.path.startswith('/apis/configs/') \
-            or request.path.startswith('/apis/files/'):
-        return None
-    # token = request.headers.get('X-TOKEN')
-    # if token and len(token) == 32:
-    #     g.user = User.query.filter_by(access_token=token).first()
-    #     if g.user and g.user.is_active and g.user.token_expired >= time.time():
-    #         g.user.token_expired = time.time() + 8 * 60 * 60
-    #         g.user.save()
-    #         return None
-    # return json_response(message='Auth fail, please login'), 401
+# def auth_middleware():
+#     if request.path == '/account/users/login/' or request.path.startswith('/apis/configs/') \
+#             or request.path.startswith('/apis/files/'):
+#         return None
+#     # token = request.headers.get('X-TOKEN')
+#     # if token and len(token) == 32:
+#     #     g.user = User.query.filter_by(access_token=token).first()
+#     #     if g.user and g.user.is_active and g.user.token_expired >= time.time():
+#     #         g.user.token_expired = time.time() + 8 * 60 * 60
+#     #         g.user.save()
+#     #         return None
+#     # return json_response(message='Auth fail, please login'), 401
     g.user = User.query.first()
     g.user.save()
-    return None
+#     return None
 
 
 def auth_request_url():
-    print("====request.path===="+request.path)
-
-    if request.path.startswith("/list"):
+    print("====request.path===="+request.path+"   "+g.user)
+    if not request.path.startswith("/schedule") and g.user:
         return app.send_static_file("index.html")
     else:
         return None
