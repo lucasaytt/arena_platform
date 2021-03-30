@@ -50,7 +50,7 @@ def exception_handler(ex):
 
 
 def auth_user(response):
-    g.user = current_user
+    g.user = User.query.filter_by(username=current_user.username).first()
     return response
 
 
