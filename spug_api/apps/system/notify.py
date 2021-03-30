@@ -1,14 +1,12 @@
 from flask import Blueprint, request
 from libs.tools import json_response, JsonParser, Argument
 from .models import NotifyWay
-from libs.decorators import require_permission
 
 
 blueprint = Blueprint(__name__, __name__)
 
 
 @blueprint.route('/', methods=['GET'])
-@require_permission('system_notify_view | system_notify_add | system_notify_edit | system_notify_del')
 def get():
     form, error = JsonParser(Argument('page', type=int, default=1, required=False),
                              Argument('pagesize', type=int, default=10, required=False),
@@ -26,7 +24,6 @@ def get():
 
 
 @blueprint.route('/', methods=['POST'])
-@require_permission('system_notify_add')
 def post():
     form, error = JsonParser('name', 'value',
                              Argument('desc', nullable=True)).parse()
@@ -40,14 +37,12 @@ def post():
 
 
 @blueprint.route('/<int:u_id>', methods=['DELETE'])
-@require_permission('system_notify_del')
 def delete(u_id):
     NotifyWay.query.get_or_404(u_id).delete()
     return json_response(), 204
 
 
 @blueprint.route('/<int:n_id>', methods=['PUT'])
-@require_permission('system_notify_edit')
 def put(n_id):
     form, error = JsonParser('name', 'value',
                              Argument('desc', nullable=True)).parse()

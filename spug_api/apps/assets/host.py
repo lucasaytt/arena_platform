@@ -6,7 +6,6 @@ from libs import ssh
 from libs.utils import DockerClient, DockerException
 import math
 from public import db
-from libs.decorators import require_permission
 from apps.assets.utils import excel_parse
 import paramiko
 import re
@@ -15,8 +14,6 @@ blueprint = Blueprint(__name__, __name__)
 
 
 @blueprint.route('/', methods=['GET'])
-@require_permission('assets_host_view | publish_app_publish_host_select | '
-                    'job_task_add | job_task_edit | assets_host_exec')
 def get():
     form, error = JsonParser(Argument('page', type=int, default=1, required=False),
                              Argument('pagesize', type=int, default=10, required=False),
@@ -36,7 +33,6 @@ def get():
 
 
 @blueprint.route('/', methods=['POST'])
-@require_permission('assets_host_add')
 def post():
     form, error = JsonParser('name', 'type', 'zone', 'docker_uri', 'ssh_ip', 'ssh_port',
                              Argument('desc', nullable=True, required=False)).parse()
@@ -48,7 +44,6 @@ def post():
 
 
 @blueprint.route('/<int:host_id>', methods=['DELETE'])
-@require_permission('assets_host_del')
 def delete(host_id):
     host = Host.query.get_or_404(host_id)
     host.delete()
@@ -56,7 +51,6 @@ def delete(host_id):
 
 
 @blueprint.route('/<int:host_id>', methods=['PUT'])
-@require_permission('assets_host_edit')
 def put(host_id):
     form, error = JsonParser('name', 'type', 'zone', 'docker_uri', 'ssh_ip', 'ssh_port',
                              Argument('desc', nullable=True, required=False)).parse()
@@ -68,7 +62,6 @@ def put(host_id):
 
 
 @blueprint.route('/<int:host_id>/valid', methods=['GET'])
-@require_permission('assets_host_valid')
 def get_valid(host_id):
     cli = Host.query.get_or_404(host_id)
     if not Setting.has('ssh_private_key'):
@@ -84,7 +77,6 @@ def get_valid(host_id):
 
 
 @blueprint.route('/<int:host_id>/valid', methods=['POST'])
-@require_permission('assets_host_valid')
 def post_valid(host_id):
     form, error = JsonParser(Argument('secret', help='请输入root用户的密码！')).parse()
     if error is None:
@@ -101,21 +93,18 @@ def post_valid(host_id):
 
 
 @blueprint.route('/<int:host_id>/extend/', methods=['GET'])
-@require_permission('assets_host_valid')
 def get_extend(host_id):
     host_extend = HostExtend.query.filter_by(host_id=host_id).first()
     return json_response(host_extend)
 
 
 @blueprint.route('/zone/', methods=['GET'])
-@require_permission('assets_host_valid | assets_host_exec')
 def fetch_groups():
     zones = db.session.query(Host.zone.distinct().label('zone')).all()
     return json_response([x.zone for x in zones])
 
 
 @blueprint.route('/import', methods=['POST'])
-@require_permission('assets_host_add')
 def host_import():
     data = excel_parse()
     if data:

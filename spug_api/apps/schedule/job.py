@@ -5,7 +5,6 @@ from apps.assets.models import Host
 from apps.schedule.models import Job,JobSchedule
 from datetime import datetime
 from public import db
-from libs.decorators import require_permission
 import uuid
 from threading import Thread
 from libs.tools import json_response, JsonParser, Argument, QueuePool
@@ -16,7 +15,6 @@ blueprint = Blueprint(__name__, __name__)
 
 
 @blueprint.route('/', methods=['GET'])
-@require_permission('job_task_view')
 def get():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
@@ -51,7 +49,6 @@ def get():
 
 
 @blueprint.route('/get_schedule_instance', methods=['GET'])
-@require_permission('job_task_view')
 def get_schedule():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
@@ -72,7 +69,6 @@ def get_schedule():
 
 
 @blueprint.route('/get_instance_log', methods=['GET'])
-@require_permission('job_log')
 def get_instance_log():
     form, error = JsonParser(
         Argument('task_instance_name', type=str, required=True),).parse(request.args)
@@ -89,7 +85,6 @@ def get_instance_log():
 
 
 @blueprint.route('/', methods=['POST'])
-@require_permission('job_task_add')
 def post():
     form, error = JsonParser(
         'bu_name', 'owner', 'name', 'group', 'desc', 'command_user', 'command', 'targets',
@@ -111,7 +106,6 @@ def post():
 
 
 @blueprint.route('/<int:job_id>', methods=['PUT'])
-@require_permission('job_task_edit')
 def put(job_id):
     form, error = JsonParser(
         'bu_name', 'owner', 'name', 'group', 'desc', 'command', 'targets',
@@ -125,7 +119,6 @@ def put(job_id):
 
 
 @blueprint.route('/<int:job_id>/trigger', methods=['POST'])
-@require_permission('job_task_add | job_task_edit')
 def set_trigger(job_id):
     form, error = JsonParser(
         Argument('trigger', filter=lambda x: x in ['cron', 'date', 'interval'], help='错误的调度策略！'),
@@ -141,7 +134,6 @@ def set_trigger(job_id):
 
 
 @blueprint.route('/<int:job_id>/switch', methods=['POST', 'DELETE'])
-@require_permission('job_task_edit')
 def switch(job_id):
     job = Job.query.get_or_404(job_id)
     if request.method == 'POST':
@@ -158,7 +150,6 @@ def switch(job_id):
 
 
 @blueprint.route('/<int:job_id>', methods=['DELETE'])
-@require_permission('job_task_del')
 def delete(job_id):
     job = Job.query.get_or_404(job_id)
     job.delete()
@@ -167,14 +158,12 @@ def delete(job_id):
 
 
 @blueprint.route('/groups/', methods=['GET'])
-@require_permission('job_task_view')
 def fetch_groups():
     apps = db.session.query(Job.group.distinct().label('group')).all()
     return json_response([x.group for x in apps])
 
 
 @blueprint.route('/exec_command', methods=['POST'])
-@require_permission('assets_host_exec')
 def exec_host_command():
     form, error = JsonParser('hosts_id', 'command').parse()
     if error is None:
@@ -198,7 +187,6 @@ def hosts_exec(q, ip, port, command):
 
 
 @blueprint.route('/exec_command/<string:token>', methods=['DELETE'])
-@require_permission('assets_host_exec')
 def exec_delete(token):
     q = QueuePool.get_queue(token)
     if q:
