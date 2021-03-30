@@ -49,7 +49,7 @@ def exception_handler(ex):
     return json_response(message=message)
 
 
-def auth_user():
+def auth_user(_):
     g.user = current_user
 
 
