@@ -43,7 +43,9 @@ def login():
             username = user_info['upn'].split("@")[0]
             sid = user_info['sid'].split("@")[0]
             token = uuid.uuid4().hex
-            user = User.query.filter_by(username=username)
+            print("=========username========",username)
+            user = User.query.filter_by(username=username).first()
+            print("==========query user res========",user.id)
             if not user:
                 user.username = username
                 user.access_token = token
