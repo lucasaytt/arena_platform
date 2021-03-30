@@ -53,10 +53,14 @@ def auth_request_url():
         print("=====real user======",current_user.is_authenticated,current_user.username)
     else:
         print("=========not real user========", current_user.is_anonymous)
-    if not request.path.startswith("/schedule") and not request.path.startswith("/js") \
-            and not request.path.startswith("/css") and current_user.is_authenticated:
-        return app.send_static_file("index.html")
+    if current_user.is_anonymous:
+        print("user is not login")
+        redirect("/index")
     else:
-        return None
+        if not request.path.startswith("/schedule") and not request.path.startswith("/js") \
+                and not request.path.startswith("/css"):
+            return app.send_static_file("index.html")
+        else:
+            return None
 
 
