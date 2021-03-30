@@ -57,6 +57,7 @@ def auth_middleware():
 
 def auth_request_url():
     print("====request.path====", request.path)
+    path = request.path
     if not current_user.is_anonymous:
         print("=====real user======",current_user.is_authenticated,current_user.username)
     else:
@@ -64,8 +65,9 @@ def auth_request_url():
     if current_user.is_anonymous:
         print("user is not login")
     else:
-        if not request.path.startswith("/schedule") and not request.path.startswith("/js") \
-                and not request.path.startswith("/css"):
+        if not path.startswith("/schedule") and not path.startswith("/js") \
+                and not path.startswith("/css") and not path.startswith("/index/logout")\
+                and not path.startswith("/index/user"):
             return app.send_static_file("index.html")
         else:
             return None
