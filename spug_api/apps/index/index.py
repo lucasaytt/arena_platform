@@ -43,11 +43,12 @@ def login():
             username = user_info['upn'].split("@")[0]
             sid = user_info['sid'].split("@")[0]
             token = uuid.uuid4().hex
-            user = User()
-            user.username = username
-            user.access_token = token
-            user.token_expired = time.time() + 8 * 60 * 60
-            user.save()
+            user = User.query.filter_by(username=username)
+            if not user:
+                user.username = username
+                user.access_token = token
+                user.token_expired = time.time() + 8 * 60 * 60
+                user.save()
             login_user(user)
             return app.send_static_file('index.html')
         else:
