@@ -43,7 +43,7 @@ def login():
             username = user_info['upn'].split("@")[0]
             sid = user_info['sid'].split("@")[0]
             token = uuid.uuid4().hex
-            user = User
+            user = User()
             user.username = username
             user.access_token = token
             user.token_expired = time.time() + 8 * 60 * 60
