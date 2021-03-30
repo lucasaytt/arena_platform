@@ -10,6 +10,7 @@ from apps import common
 from apps import system
 from apps import index
 from flask_login import LoginManager
+from apps.account.models import User
 
 
 middleware.init_app(app)
@@ -29,7 +30,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(userid):
-    return None
+    return User.query.get(userid)
 
 
 if __name__ == '__main__':
