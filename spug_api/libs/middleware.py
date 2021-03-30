@@ -36,6 +36,7 @@ def cross_domain_access_after(response):
 
 
 def page_not_found(_):
+    redirect("/index")
     return json_response(message='Resource not found'), 404
 
 
@@ -55,7 +56,6 @@ def auth_request_url():
         print("=========not real user========", current_user.is_anonymous)
     if current_user.is_anonymous:
         print("user is not login")
-        redirect("/index")
     else:
         if not request.path.startswith("/schedule") and not request.path.startswith("/js") \
                 and not request.path.startswith("/css"):
