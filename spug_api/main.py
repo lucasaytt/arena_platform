@@ -27,5 +27,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+@login_manager.user_loader
+def load_user(userid):
+    return None
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=DEBUG)
