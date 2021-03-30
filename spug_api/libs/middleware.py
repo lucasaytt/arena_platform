@@ -49,8 +49,9 @@ def exception_handler(ex):
     return json_response(message=message)
 
 
-def auth_user(_):
+def auth_user(response):
     g.user = current_user
+    return response
 
 
 def auth_request_url():
