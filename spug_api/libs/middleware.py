@@ -51,6 +51,7 @@ def exception_handler(ex):
 
 def auth_user(response):
     g.user = User.query.filter_by(username=current_user.username).first()
+    g.user.save()
     return response
 
 
