@@ -14,7 +14,7 @@ def init_app(app):
     excel.init_excel(app)
     app.before_request(cross_domain_access_before)
     app.before_request(auth_request_url)
-    app.after_request(auth_user)
+    app.before_request(auth_middleware)
     app.after_request(cross_domain_access_after)
     app.register_error_handler(Exception, exception_handler)
     app.register_error_handler(404, page_not_found)
@@ -49,10 +49,10 @@ def exception_handler(ex):
     return json_response(message=message)
 
 
-def auth_user(response):
-    g.user = User.query.filter_by(username=current_user.username).first()
+def auth_middleware():
+    g.user = User.query.first()
     g.user.save()
-    return response
+    return None
 
 
 def auth_request_url():
