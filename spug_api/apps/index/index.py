@@ -43,6 +43,7 @@ def login():
             token = uuid.uuid4().hex
             user = User.query.filter_by(username=username).first()
             if not user:
+                user = User()
                 user.username = username
                 user.access_token = token
                 user.token_expired = time.time() + 8 * 60 * 60
