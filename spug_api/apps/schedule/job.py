@@ -48,6 +48,12 @@ def get():
     return json_response(message=error)
 
 
+@blueprint.route('/<int:job_id>', methods=['GET'])
+def get_single_job(job_id):
+    job = Job.query.get_or_404(job_id)
+    return json_response({'data': job.to_json(), 'total': 1})
+
+
 @blueprint.route('/get_schedule_instance', methods=['GET'])
 def get_schedule():
     form, error = JsonParser(
