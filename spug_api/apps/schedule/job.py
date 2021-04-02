@@ -53,7 +53,7 @@ def get_single_job(job_id):
     job = Job.query.filter_by(id=job_id).first()
     if job == None:
         error = "no record"
-        return json_response({'message': error})
+        return json_response(message=error)
     else:
         return json_response({'data': job.to_json(), 'total': 1})
 
