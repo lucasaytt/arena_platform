@@ -51,8 +51,7 @@ def get():
 @blueprint.route('/<int:job_id>', methods=['GET'])
 def get_single_job(job_id):
     job = Job.query.filter_by(id=job_id).first()
-    total = job.count()
-    if total == 0:
+    if job == None:
         error = "no record"
         return json_response({'message': error})
     else:
