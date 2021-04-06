@@ -181,16 +181,18 @@ def exec_host_command():
         token = uuid.uuid4().hex
         q = QueuePool.make_queue(token, len(ip_list))
         for h in ip_list:
-            Thread(target=hosts_exec, args=(q, h.ssh_ip, h.ssh_port, form.command)).start()
+            Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, form.command)).start()
         return json_response(token)
     return json_response(message=error)
 
 
-def hosts_exec(q, ip, port, command):
-    ssh_client = get_ssh_client(ip, port)
+def hosts_exec(q, ip, username, port, command):
+    ssh_client = get_ssh_client(ip, username, port)
     q.destroyed.append(ssh_client.close)
     output = ssh_exec_command_with_stream(ssh_client, command)
+
     for line in output:
+        print("=================exec===="+line);
         q.put({ip: line})
     q.put({ip: '\n** 执行完成 **'})
     q.done()
