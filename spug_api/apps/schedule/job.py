@@ -176,11 +176,13 @@ def fetch_groups():
 @blueprint.route('/exec_command', methods=['POST'])
 def exec_host_command():
     form, error = JsonParser('hosts_id', 'command').parse()
+    print("hosts_id"+form.hosts_id+"  command:"+form.command)
     if error is None:
         ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
         token = uuid.uuid4().hex
         q = QueuePool.make_queue(token, len(ip_list))
         for h in ip_list:
+            print(h.ssh_ip)
             Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, form.command)).start()
         return json_response(token)
     return json_response(message=error)
@@ -190,9 +192,9 @@ def hosts_exec(q, ip, username, port, command):
     ssh_client = get_ssh_client(ip, username, port)
     q.destroyed.append(ssh_client.close)
     output = ssh_exec_command_with_stream(ssh_client, command)
-
+    print("=================exec====" + output)
     for line in output:
-        print("=================exec===="+line);
+
         q.put({ip: line})
     q.put({ip: '\n** 执行完成 **'})
     q.done()
