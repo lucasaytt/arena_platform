@@ -43,6 +43,7 @@ class Scheduler(object):
         args = self.__parse_args(job.trigger, job.trigger_args)
         #root 账户下的服务需要切换到对应的用户下执行、
         command_trans = 'su -l ', job.command_user, ' -c \'', job.command, '\''
+        print(command_trans)
         instance = self.scheduler.add_job(
             agent,
             job.trigger,
