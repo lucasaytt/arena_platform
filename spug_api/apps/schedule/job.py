@@ -150,7 +150,7 @@ def switch(job_id):
         if job.trigger is None:
             return json_response(message='请在 更多-设置触发器 中配置调度策略')
         job.update(enabled=True)
-        command_trans = 'su -l ', job.command_user, ' -c \'', job.command, '\''
+        command_trans = 'su -l ' + job.command_user + ' -c \'' + job.command+'\''
         print("===========", command_trans)
         if job.command_user == 'root':
             return json_response({'message': '静止使用root账户提交'})
