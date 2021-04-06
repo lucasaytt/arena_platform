@@ -150,7 +150,10 @@ def switch(job_id):
         if job.trigger is None:
             return json_response(message='请在 更多-设置触发器 中配置调度策略')
         job.update(enabled=True)
-        scheduler.add_job(job)
+        if job.command_user == 'root':
+            return json_response({'message': '静止使用root账户提交'})
+        else:
+            scheduler.add_job(job)
     elif request.method == 'DELETE':
         job.update(enabled=False)
         scheduler.remove_job(job.id)
@@ -177,13 +180,15 @@ def fetch_groups():
 def exec_host_command():
     form, error = JsonParser('hosts_id', 'command').parse()
     print("hosts_id"+form.hosts_id+"  command:"+form.command)
+    #这里操作是ssh后初始化环境变量
+    new_command = "source /etc/profile &&. /etc/profile && "+form.command
     if error is None:
         ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
         token = uuid.uuid4().hex
         q = QueuePool.make_queue(token, len(ip_list))
         for h in ip_list:
             print(h.ssh_ip)
-            Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, form.command)).start()
+            Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, new_command)).start()
         return json_response(token)
     return json_response(message=error)
 
@@ -192,11 +197,8 @@ def hosts_exec(q, ip, username, port, command):
     ssh_client = get_ssh_client(ip, username, port)
     q.destroyed.append(ssh_client.close)
     output = ssh_exec_command_with_stream(ssh_client, command)
-    print("==========")
     for line in output:
-        print(line)
         q.put({ip: line})
-    print("==========")
     q.put({ip: '\n** 执行完成 **'})
     q.done()
 
