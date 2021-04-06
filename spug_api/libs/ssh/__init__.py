@@ -31,14 +31,15 @@ def add_public_key(hostname, port, password):
         ssh_client.close()
 
 
-def get_ssh_client(hostname, port):
+def get_ssh_client(hostname, username, port):
     ssh_client = SSHClient()
     ssh_client.set_missing_host_key_policy(AutoAddPolicy)
-    ssh_client.connect(
-        hostname,
-        port=port,
-        username='hadoop',
-        pkey=RSAKey.from_private_key(StringIO(Setting.ssh_private_key)))
+    ssh_client.connect(hostname, username=username, password='')
+    # ssh_client.connect(
+    #     hostname,
+    #     port=port,
+    #     username='hadoop',
+    #     pkey=RSAKey.from_private_key(StringIO(Setting.ssh_private_key)))
     return ssh_client
 
 

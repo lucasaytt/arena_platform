@@ -57,7 +57,7 @@ def login():
 
 @blueprint.route('/user', methods=['GET'])
 def sso_get_user_info():
-    return json_response({"username": current_user.username})
+    return json_response({"username": current_user.username, "bu": "ad"})
 
 
 @blueprint.route('/logout', methods=['GET'])
