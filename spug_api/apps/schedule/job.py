@@ -59,7 +59,7 @@ def get_single_job(job_id):
 
 
 @blueprint.route('/get_schedule_instance', methods=['GET'])
-def get_schedule(self):
+def get_schedule():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
         Argument('pagesize', type=int, default=10, required=False),
