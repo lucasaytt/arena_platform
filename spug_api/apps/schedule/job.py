@@ -72,7 +72,7 @@ def get_schedule():
         if form.job_group:
             job = JobSchedule.query.filter_by(group=form.job_group).order_by(JobSchedule.update_time.desc())
         if form.job_name:
-            job = job.filter_by(job_name=form.job_name)
+            job = job.filter_by(JobSchedule.job_name.like("%" + form.job_name + "%"))
         if form.job_id:
             job = job.filter_by(job_id=form.job_id)
 
