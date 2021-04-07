@@ -63,13 +63,20 @@ def get_schedule():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
         Argument('pagesize', type=int, default=10, required=False),
-        Argument('job_group', type=str, required=False),).parse(request.args)
+        Argument('job_group', type=str, required=False),
+        Argument('job_name', type=str, required=False),
+        Argument('job_id', type=int, required=False),).parse(request.args)
 
     if error is None:
+        job = db.session.query(JobSchedule)
         if form.job_group:
             job = JobSchedule.query.filter_by(group=form.job_group).order_by(JobSchedule.update_time.desc())
-        else:
-            job = JobSchedule.query.order_by(JobSchedule.update_time.desc())
+        if form.job_name:
+            job = job.filter_by(job_name=form.job_name)
+        if form.job_id:
+            job = job.filter_by(job_id=form.job_id)
+
+        job = job.order_by(JobSchedule.update_time.desc())
 
         total = job.count()
         job_data = job.limit(form.pagesize).offset((form.page - 1) * form.pagesize).all()
