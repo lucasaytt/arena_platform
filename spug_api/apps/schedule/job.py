@@ -199,8 +199,12 @@ def hosts_exec(q, ip, username, port, command):
     ssh_client = get_ssh_client(ip, username, port)
     q.destroyed.append(ssh_client.close)
     output = ssh_exec_command_with_stream(ssh_client, command)
+    print("===============")
+    print(output)
     for line in output:
+        print(line)
         q.put({ip: line})
+    print("===============")
     q.put({ip: '\n** 执行完成 **'})
     q.done()
 
