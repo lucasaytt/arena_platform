@@ -32,7 +32,7 @@ class JobSchedule(db.Model, ModelMixin):
     __tablename__ = 'schedule_job_action'
 
     id = db.Column(db.Integer, primary_key=True)
-    job_name = db.Column(db.String(2000))
+    job_id = db.Column(db.String(2000))
     owner = db.Column(db.String(100))
     job_name = db.Column(db.String(500))
     job_schedule_name = db.Column(db.String(500))
