@@ -59,7 +59,7 @@ def get_single_job(job_id):
 
 
 @blueprint.route('/get_schedule_instance', methods=['GET'])
-def get_schedule():
+def get_schedule(self):
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
         Argument('pagesize', type=int, default=10, required=False),
@@ -72,7 +72,7 @@ def get_schedule():
         if form.job_group:
             job = JobSchedule.query.filter_by(group=form.job_group).order_by(JobSchedule.update_time.desc())
         if form.job_name:
-            job = job.filter_by(JobSchedule.job_name.like("%" + form.job_name + "%"))
+            job = job.filter(JobSchedule.job_name.like("%" + form.job_name + "%"))
         if form.job_id:
             job = job.filter_by(job_id=form.job_id)
 
