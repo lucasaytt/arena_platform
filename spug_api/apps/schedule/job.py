@@ -101,11 +101,33 @@ def get_instance_log():
     return json_response(message=error)
 
 
+@blueprint.route('/kill_job', methods=['POST'])
+def kill_job():
+    form, error = JsonParser(
+        'job_schedule_name',
+        Argument('hosts_id', type=str, default=1, required=False),
+        Argument('command', type=str, default='bash /tensorflow/arena_stop/arena_job_kill.sh', required=False),
+       ).parse()
+    print("hosts_id" + form.hosts_id + "  command:" + form.command)
+    # 这里操作是ssh后初始化环境变量
+    new_command = "source /etc/profile &&. /etc/profile && " + form.command + " " + form.job_schedule_name
+    if error is None:
+        ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
+        token = uuid.uuid4().hex
+        q = QueuePool.make_queue(token, len(ip_list))
+        for h in ip_list:
+            print(h.ssh_ip)
+            Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, new_command)).start()
+        return json_response(token)
+    return json_response(message=error)
+
+
 @blueprint.route('/', methods=['POST'])
 def post():
     form, error = JsonParser(
         'bu_name', 'owner', 'name', 'group', 'desc', 'command_user', 'command', 'targets',
-        Argument('bu_name', default='ad_user'),Argument('owner', default='rui.lu'),
+        Argument('bu_name', default='ad_user'),
+        Argument('owner', default='rui.lu'),
         Argument('command_user', default='root')
     ).parse()
 
