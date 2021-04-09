@@ -105,7 +105,7 @@ def get_instance_log():
 def kill_job():
     form, error = JsonParser(
         'job_schedule_name',
-        Argument('hosts_id', type=str, default=1, required=False),
+        'hosts_id',
         Argument('command', type=str, default='bash /tensorflow/arena_stop/arena_job_kill.sh', required=False),
        ).parse()
     print("hosts_id" + str(form.hosts_id) + "  command:" + form.command)
