@@ -105,12 +105,13 @@ def get_instance_log():
 def kill_job():
     form, error = JsonParser(
         'job_schedule_name',
+        'kill_user',
         'hosts_id',
         Argument('command', type=str, default='bash /tensorflow/arena_stop/arena_job_kill.sh', required=False),
        ).parse()
     print("hosts_id" + str(form.hosts_id) + "  command:" + form.command)
     # 这里操作是ssh后初始化环境变量
-    new_command = "source /etc/profile &&. /etc/profile && " + form.command + " " + form.job_schedule_name
+    new_command = "source /etc/profile &&. /etc/profile && " + form.command + " " + form.kill_user + " " + form.job_schedule_name
     if error is None:
         ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
         token = uuid.uuid4().hex
