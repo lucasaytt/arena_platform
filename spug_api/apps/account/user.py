@@ -1,7 +1,6 @@
 from flask import Blueprint, request, g
 from apps.account.models import User
 from libs.tools import json_response, JsonParser, Argument, human_diff_time
-from libs.decorators import require_permission
 from collections import defaultdict
 from datetime import datetime
 import uuid
@@ -12,7 +11,6 @@ login_limit = defaultdict(int)
 
 
 @blueprint.route('/', methods=['GET'])
-@require_permission('account_user_view')
 def get():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
@@ -38,7 +36,6 @@ def get():
 
 
 @blueprint.route('/', methods=['POST'])
-@require_permission('account_user_add')
 def post():
     form, error = JsonParser('nickname', 'username', 'password',
                              Argument('role_id', type=int, help='请选择角色'),
@@ -54,14 +51,12 @@ def post():
 
 
 @blueprint.route('/<int:u_id>', methods=['DELETE'])
-@require_permission('account_user_del')
 def delete(u_id):
     User.query.get_or_404(u_id).delete()
     return json_response(), 204
 
 
 @blueprint.route('/<int:u_id>', methods=['PUT'])
-@require_permission('account_user_edit | account_user_disable')
 def put(u_id):
     form, error = JsonParser('nickname', 'is_active',
                              Argument('role_id', type=int, required=False, help='请选择角色'),

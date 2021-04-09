@@ -1,6 +1,7 @@
 from public import db
 from libs.model import ModelMixin
 import datetime
+from sqlalchemy import func, text
 
 
 class Host(db.Model, ModelMixin):
@@ -13,6 +14,10 @@ class Host(db.Model, ModelMixin):
     zone = db.Column(db.String(50))
     ssh_ip = db.Column(db.String(32))
     ssh_port = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
+    # onupdate设置自动更改
+    update_time = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+                            comment='修改时间')
 
     def __repr__(self):
         return '<Host %r>' % self.name
@@ -28,5 +33,8 @@ class HostExtend(db.Model, ModelMixin):
     cpu_core = db.Column(db.SmallInteger)
     avaliable_mem = db.Column(db.SmallInteger)
     avaliable_core = db.Column(db.SmallInteger)
-
     hosts = db.relationship(Host, backref=db.backref('host'))
+    create_time = db.Column(db.DateTime, server_default=func.now(), comment='创建时间')
+    # onupdate设置自动更改
+    update_time = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+                            comment='修改时间')

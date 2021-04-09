@@ -1,15 +1,19 @@
 # coding=utf-8
-from flask import request, make_response, g
+from flask import request, make_response, g, redirect, send_from_directory
 from libs.tools import json_response
 from apps.account.models import User
 from public import app
 import time
 import flask_excel as excel
+from flask_login import login_user,current_user,login_manager,login_required
+from libs.tools import json_response, JsonParser
+import os
 
 
 def init_app(app):
     excel.init_excel(app)
     app.before_request(cross_domain_access_before)
+    app.before_request(auth_request_url)
     app.before_request(auth_middleware)
     app.after_request(cross_domain_access_after)
     app.register_error_handler(Exception, exception_handler)
@@ -33,7 +37,8 @@ def cross_domain_access_after(response):
 
 
 def page_not_found(_):
-    return json_response(message='Resource not found'), 404
+    return redirect("/index")
+    #return json_response(message='Resource not found'), 404
 
 
 def exception_handler(ex):
@@ -45,18 +50,26 @@ def exception_handler(ex):
 
 
 def auth_middleware():
-    if request.path == '/account/users/login/' or request.path.startswith('/apis/configs/') \
-            or request.path.startswith('/apis/files/'):
-        return None
-    # token = request.headers.get('X-TOKEN')
-    # if token and len(token) == 32:
-    #     g.user = User.query.filter_by(access_token=token).first()
-    #     if g.user and g.user.is_active and g.user.token_expired >= time.time():
-    #         g.user.token_expired = time.time() + 8 * 60 * 60
-    #         g.user.save()
-    #         return None
-    # return json_response(message='Auth fail, please login'), 401
     g.user = User.query.first()
     g.user.save()
     return None
+
+
+def auth_request_url():
+    print("====request.path====", request.path)
+    path = request.path
+    if not current_user.is_anonymous:
+        print("=====real user======",current_user.is_authenticated,current_user.username)
+    else:
+        print("=========not real user========", current_user.is_anonymous)
+    if current_user.is_anonymous:
+        print("user is not login")
+    else:
+        if not path.startswith("/schedule") and not path.startswith("/js") \
+                and not path.startswith("/css") and not path.startswith("/index/logout")\
+                and not path.startswith("/index/user"):
+            return app.send_static_file("index.html")
+        else:
+            return None
+
 

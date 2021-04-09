@@ -9,6 +9,9 @@ from apps import home
 from apps import common
 from apps import system
 from apps import index
+from flask_login import LoginManager
+from apps.account.models import User
+
 
 middleware.init_app(app)
 account.register_blueprint(app)
@@ -19,6 +22,18 @@ home.register_blueprint(app)
 common.register_blueprint(app)
 system.register_blueprint(app)
 index.register_blueprint(app)
+
+
+login_manager = LoginManager()
+login_manager.login_view = "apps.index.index.login"
+login_manager.session_protection = "strong"
+login_manager.login_message = u"invalid request return index page"
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.query.get(userid)
 
 
 if __name__ == '__main__':

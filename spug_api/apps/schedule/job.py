@@ -5,7 +5,6 @@ from apps.assets.models import Host
 from apps.schedule.models import Job,JobSchedule
 from datetime import datetime
 from public import db
-from libs.decorators import require_permission
 import uuid
 from threading import Thread
 from libs.tools import json_response, JsonParser, Argument, QueuePool
@@ -16,7 +15,6 @@ blueprint = Blueprint(__name__, __name__)
 
 
 @blueprint.route('/', methods=['GET'])
-@require_permission('job_task_view')
 def get():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
@@ -47,22 +45,38 @@ def get():
             else:
                 job['next_run_time'] = '异常'
         return json_response({'data': jobs, 'total': total})
-    return json_response(message=error)
+    return json_response({'message': error})
+
+
+@blueprint.route('/<int:job_id>', methods=['GET'])
+def get_single_job(job_id):
+    job = Job.query.filter_by(id=job_id).first()
+    if job == None:
+        error = "no record"
+        return json_response(message=error)
+    else:
+        return json_response({'data': job.to_json(), 'total': 1})
 
 
 @blueprint.route('/get_schedule_instance', methods=['GET'])
-@require_permission('job_task_view')
 def get_schedule():
     form, error = JsonParser(
         Argument('page', type=int, default=1, required=False),
         Argument('pagesize', type=int, default=10, required=False),
-        Argument('job_group', type=str, required=False),).parse(request.args)
+        Argument('job_group', type=str, required=False),
+        Argument('job_name', type=str, required=False),
+        Argument('job_id', type=int, required=False),).parse(request.args)
 
     if error is None:
+        job = db.session.query(JobSchedule)
         if form.job_group:
             job = JobSchedule.query.filter_by(group=form.job_group).order_by(JobSchedule.update_time.desc())
-        else:
-            job = JobSchedule.query.order_by(JobSchedule.update_time.desc())
+        if form.job_name:
+            job = job.filter(JobSchedule.job_name.like("%" + form.job_name + "%"))
+        if form.job_id:
+            job = job.filter_by(job_id=form.job_id)
+
+        job = job.order_by(JobSchedule.update_time.desc())
 
         total = job.count()
         job_data = job.limit(form.pagesize).offset((form.page - 1) * form.pagesize).all()
@@ -72,7 +86,6 @@ def get_schedule():
 
 
 @blueprint.route('/get_instance_log', methods=['GET'])
-@require_permission('job_log')
 def get_instance_log():
     form, error = JsonParser(
         Argument('task_instance_name', type=str, required=True),).parse(request.args)
@@ -88,12 +101,35 @@ def get_instance_log():
     return json_response(message=error)
 
 
+@blueprint.route('/kill_job', methods=['POST'])
+def kill_job():
+    form, error = JsonParser(
+        'job_schedule_name',
+        'kill_user',
+        'hosts_id',
+        'id',
+        Argument('command', type=str, default='bash /tensorflow/arena_stop/arena_job_kill.sh', required=False),
+       ).parse()
+    print("hosts_id" + str(form.hosts_id) + "  command:" + form.command)
+    # 这里操作是ssh后初始化环境变量
+    new_command = "source /etc/profile &&. /etc/profile && " + form.command + " " + form.kill_user + " " + form.job_schedule_name + " " + str(form.id)
+    if error is None:
+        ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
+        token = uuid.uuid4().hex
+        q = QueuePool.make_queue(token, len(ip_list))
+        for h in ip_list:
+            print(h.ssh_ip)
+            Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, new_command)).start()
+        return json_response(token)
+    return json_response(message=error)
+
+
 @blueprint.route('/', methods=['POST'])
-@require_permission('job_task_add')
 def post():
     form, error = JsonParser(
         'bu_name', 'owner', 'name', 'group', 'desc', 'command_user', 'command', 'targets',
-        Argument('bu_name', default='ad_user'),Argument('owner', default='rui.lu'),
+        Argument('bu_name', default='ad_user'),
+        Argument('owner', default='rui.lu'),
         Argument('command_user', default='root')
     ).parse()
 
@@ -111,7 +147,6 @@ def post():
 
 
 @blueprint.route('/<int:job_id>', methods=['PUT'])
-@require_permission('job_task_edit')
 def put(job_id):
     form, error = JsonParser(
         'bu_name', 'owner', 'name', 'group', 'desc', 'command', 'targets',
@@ -125,7 +160,6 @@ def put(job_id):
 
 
 @blueprint.route('/<int:job_id>/trigger', methods=['POST'])
-@require_permission('job_task_add | job_task_edit')
 def set_trigger(job_id):
     form, error = JsonParser(
         Argument('trigger', filter=lambda x: x in ['cron', 'date', 'interval'], help='错误的调度策略！'),
@@ -141,14 +175,18 @@ def set_trigger(job_id):
 
 
 @blueprint.route('/<int:job_id>/switch', methods=['POST', 'DELETE'])
-@require_permission('job_task_edit')
 def switch(job_id):
     job = Job.query.get_or_404(job_id)
     if request.method == 'POST':
         if job.trigger is None:
             return json_response(message='请在 更多-设置触发器 中配置调度策略')
         job.update(enabled=True)
-        scheduler.add_job(job)
+        command_trans = 'su -l ' + job.command_user + ' -c \'' + job.command+'\''
+        print("===========", command_trans)
+        if job.command_user == 'root':
+            return json_response({'message': '静止使用root账户提交'})
+        else:
+            scheduler.add_job(job)
     elif request.method == 'DELETE':
         job.update(enabled=False)
         scheduler.remove_job(job.id)
@@ -158,7 +196,6 @@ def switch(job_id):
 
 
 @blueprint.route('/<int:job_id>', methods=['DELETE'])
-@require_permission('job_task_del')
 def delete(job_id):
     job = Job.query.get_or_404(job_id)
     job.delete()
@@ -167,38 +204,43 @@ def delete(job_id):
 
 
 @blueprint.route('/groups/', methods=['GET'])
-@require_permission('job_task_view')
 def fetch_groups():
     apps = db.session.query(Job.group.distinct().label('group')).all()
     return json_response([x.group for x in apps])
 
 
 @blueprint.route('/exec_command', methods=['POST'])
-@require_permission('assets_host_exec')
 def exec_host_command():
     form, error = JsonParser('hosts_id', 'command').parse()
+    print("hosts_id"+form.hosts_id+"  command:"+form.command)
+    #这里操作是ssh后初始化环境变量
+    new_command = "source /etc/profile &&. /etc/profile && "+form.command
     if error is None:
         ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
         token = uuid.uuid4().hex
         q = QueuePool.make_queue(token, len(ip_list))
         for h in ip_list:
-            Thread(target=hosts_exec, args=(q, h.ssh_ip, h.ssh_port, form.command)).start()
+            print(h.ssh_ip)
+            Thread(target=hosts_exec, args=(q, h.ssh_ip, 'ad_user', h.ssh_port, new_command)).start()
         return json_response(token)
     return json_response(message=error)
 
 
-def hosts_exec(q, ip, port, command):
-    ssh_client = get_ssh_client(ip, port)
+def hosts_exec(q, ip, username, port, command):
+    ssh_client = get_ssh_client(ip, username, port)
     q.destroyed.append(ssh_client.close)
     output = ssh_exec_command_with_stream(ssh_client, command)
+    print("===============")
+    print(output)
     for line in output:
+        print(line)
         q.put({ip: line})
+    print("===============")
     q.put({ip: '\n** 执行完成 **'})
     q.done()
 
 
 @blueprint.route('/exec_command/<string:token>', methods=['DELETE'])
-@require_permission('assets_host_exec')
 def exec_delete(token):
     q = QueuePool.get_queue(token)
     if q:
