@@ -108,7 +108,7 @@ def kill_job():
         Argument('hosts_id', type=str, default=1, required=False),
         Argument('command', type=str, default='bash /tensorflow/arena_stop/arena_job_kill.sh', required=False),
        ).parse()
-    print("hosts_id" + form.hosts_id + "  command:" + form.command)
+    print("hosts_id" + str(form.hosts_id) + "  command:" + form.command)
     # 这里操作是ssh后初始化环境变量
     new_command = "source /etc/profile &&. /etc/profile && " + form.command + " " + form.job_schedule_name
     if error is None:
