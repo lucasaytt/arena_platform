@@ -113,7 +113,7 @@ def kill_job():
     print("hosts_id" + str(form.hosts_id) + "  command:" + form.command)
     # 这里操作是ssh后初始化环境变量
     new_command = "source /etc/profile &&. /etc/profile && " + form.command + " " + form.kill_user + " " + \
-                  form.job_schedule_name + " " + id
+                  form.job_schedule_name + " " + str(id)
     if error is None:
         ip_list = Host.query.filter(Host.id.in_(tuple(form.hosts_id))).all()
         token = uuid.uuid4().hex
