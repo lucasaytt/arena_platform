@@ -52,7 +52,7 @@ def init_db():
     user_input = input('是否要初始化数据库，该操作会清空所有数据[y|n]？')
     if user_input.strip() == 'y':
         #db.drop_all()
-        db.create_all()
+        #db.create_all()
         print('数据库已初始化成功！')
         user_input = input('是否需要创建管理员账户[y|n]？')
         if user_input.strip() == 'y':
@@ -67,15 +67,15 @@ def create_admin():
     if admin:
         user_input = input('已存在管理员账户 <%s>，需要重置密码[y|n]？' % admin.username)
         if user_input.strip() == 'y':
-            password = check_input_password(getpass('请输入新的管理员账户密码：'))
-            admin.password = password
+            #password = check_input_password(getpass('请输入新的管理员账户密码：'))
+            #admin.password = password
             admin.token_expired = 0
             admin.save()
             print('重置管理员密码成功！')
     else:
         username = check_input_username(input('请输入管理员账户登录名：'))
-        password = check_input_password(getpass('请输入管理员账户密码：'))
-        User(username=username, password=password, nickname='管理员', is_supper=True).save()
+        #password = check_input_password(getpass('请输入管理员账户密码：'))
+        User(username=username, is_supper=True).save()
         print('创建管理员账户成功！')
 
 
