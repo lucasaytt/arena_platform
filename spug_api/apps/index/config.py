@@ -9,14 +9,14 @@ sso_params = {
 authorize_params = {
     "response_type": "code",
     "client_id": "a6e7edae-e3b8-43fd-92bc-f6208368b8be",
-    "redirect_uri": "https://tensorflow-test.cootekos.com/index",
+    "redirect_uri": "https://tensorflow.cootekos.com/index",
 }
 
 token_params = {
     "grant_type": "authorization_code",
     "code": "",
     "client_id": "a6e7edae-e3b8-43fd-92bc-f6208368b8be",
-    "redirect_uri": "https://tensorflow-test.cootekos.com/index",
+    "redirect_uri": "https://tensorflow.cootekos.com/index",
     "client_secret": "E4wjVfZeN_YoUA16GvyrV5SmwC7oplmsY20p24ru",
 }
 
