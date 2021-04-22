@@ -4,8 +4,8 @@ import os
 DEBUG = True
 TIME_ZONE = timezone('Asia/Shanghai')
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-#SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://hive_user:J2q1mbVBRMSHvucC@cn-bdp-mysql01.corp.cootek.com/tensorflow'
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://tensorflow_rw:a.l2Rz.px^w,7kRs@hybrid-mha-master.corp.cootek.com:3330/tensorflow'
+#SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://xxxxx:xxxxxx@cn-bdp-mysql01.corp.cootek.com/tensorflow'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://xxxxx:xxxxx@hybrid-mha-master.corp.cootek.com:3330/tensorflow'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
